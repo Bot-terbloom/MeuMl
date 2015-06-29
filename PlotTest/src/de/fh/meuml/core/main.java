@@ -1,7 +1,10 @@
 package de.fh.meuml.core;
 import java.io.*;
+import java.text.DecimalFormat;
+
 import org.math.plot.Plot2DPanel;
 
+import de.fh.meuml.core.DataLine.Annotation;
 import de.fh.meuml.generator.*;
 
 public class main
@@ -12,49 +15,119 @@ public class main
 		 * 
 		 * */
 		int sensorId = 1324189;
-		//String basepath = "..\\measurements\\2015.04.30\\08\\";
-		String basepath = "../measurements/2015.04.30/08/";
+		String basepath = "measurements\\2015.04.30\\08\\";
+		String nameLaufen = "laufen";
+		String nameGehen = "gehen";
+		String nameDrehen = "drehen";
+		//String basepath = "../measurements/2015.04.30/08/";
 		//Data laufen = getDataFromFile(basepath + "laufen.csv");
 		//Data still = getDataFromFile(basepath + "sitzen.csv");
-		Data laufen = getDataFromFile(basepath + "laufen.csv");
-		Data still = getDataFromFile(basepath + "sitzen.csv");
+		Data laufen1 = Data.getDataFromFile(basepath + "laufen.csv", nameLaufen, Annotation.Laufen);
+		Data drehen1 = Data.getDataFromFile(basepath + "drehen.csv", nameDrehen, Annotation.Drehen);
+		Data gehen1 = Data.getDataFromFile(basepath + "gehen.csv", nameGehen, Annotation.Gehen);
 		
-		System.out.print("Anzahl Datensätze: ");
-        System.out.println(still.getAttributeByValue(Data.Fields.ID.getText(), sensorId).length);
-        
-        System.out.print("Mean AccX: ");
-        System.out.println(getMean(still.getAttributeByValue(Data.Fields.AccelX.getText(), sensorId)));
-        System.out.print("Mean AccY: ");
-        System.out.println(getMean(still.getAttributeByValue(Data.Fields.AccelY.getText(), sensorId)));
-        System.out.print("Mean AccZ: ");
-        System.out.println(getMean(still.getAttributeByValue(Data.Fields.AccelZ.getText(), sensorId)));
+		basepath = "measurements\\2015.04.30\\13\\";
+		Data laufen2 = Data.getDataFromFile(basepath + "laufen.csv", nameLaufen, Annotation.Laufen);
+		Data drehen2 = Data.getDataFromFile(basepath + "drehen.csv", nameDrehen, Annotation.Drehen);
+		Data gehen2 = Data.getDataFromFile(basepath + "gehen.csv", nameGehen, Annotation.Gehen);
 		
-        System.out.print("StdDev AccX: ");
-        System.out.println(calcDev(still.getAttributeByValue(Data.Fields.AccelX.getText(), sensorId)));
-        System.out.print("StdDev AccY: ");
-        System.out.println(calcDev(still.getAttributeByValue(Data.Fields.AccelY.getText(), sensorId)));
-        System.out.print("StdDev AccZ: ");
-        System.out.println(calcDev(still.getAttributeByValue(Data.Fields.AccelZ.getText(), sensorId)));
-        
+		Data training = mergeData(laufen1, drehen1);
+		training = mergeData(training, gehen1);
+		training.generateFeature();
+		
+		Data eval = mergeData(laufen2, drehen2);
+		eval = mergeData(eval, gehen2);
+		eval.generateFeature();
+		
+		Node tree = new Node(training.lines.get(sensorId), training.headers, 3, true, null, "eng aX", "eng aY", "eng aZ");
+		//Node tree = new Node(still, sensorId, 3, Data.Fields.AccelX.getText());
+		tree.print();
+		Evaluation result = tree.fire(eval.lines.get(sensorId));
+		System.out.println(eval.lines.get(sensorId).size());
+		System.out.println(result.toString(eval.lines.get(sensorId).size()));
+		
+		double[][] c1 = new double[2][];
+		double[][] c2 = new double[2][];
+		
+		c1[0] = gehen1.getAttributeByValue("eng aX", sensorId);
+		c1[1] = gehen1.getAttributeByValue("eng aY", sensorId);
+		
+		c2[0] = laufen1.getAttributeByValue("eng aX", sensorId);
+		c2[1] = laufen1.getAttributeByValue("eng aY", sensorId);
+		
+//		System.out.println(Arrays.toString(c1[0]));
+//		System.out.println(Arrays.toString(c2[0]));
+//		System.out.println(Arrays.toString(c1[1]));
+//		System.out.println(Arrays.toString(c2[1]));
+		Neuron ne = A2.trainPocket(c1, c2);
+		DecimalFormat df = new DecimalFormat("###,##0.000");
+		double[] weights = ne.getWeights();
+		String output = "";
+		System.out.println("Theta: " + df.format(ne.getTeta()));
+		for (int i = 0; i < weights.length; i++) {
+			System.out.println("w" + i + ": " + df.format(weights[i]));
+			output += "x" + i + " = "
+					+ df.format(ne.getTeta() / ne.getWeight(i)) + "\n";
+		}
+		System.out.println(output);
+		
+//		  System.out.print("Anzahl Datensätze: ");
+//        System.out.println(still.getAttributeByValue(Data.Fields.ID.getText(), sensorId).length);
+//        
+//        System.out.print("Mean AccX: ");
+//        System.out.println(getMean(still.getAttributeByValue(Data.Fields.AccelX.getText(), sensorId)));
+//        System.out.print("Mean AccY: ");
+//        System.out.println(getMean(still.getAttributeByValue(Data.Fields.AccelY.getText(), sensorId)));
+//        System.out.print("Mean AccZ: ");
+//        System.out.println(getMean(still.getAttributeByValue(Data.Fields.AccelZ.getText(), sensorId)));
+//		
+//        System.out.print("StdDev AccX: ");
+//        System.out.println(calcDev(still.getAttributeByValue(Data.Fields.AccelX.getText(), sensorId)));
+//        System.out.print("StdDev AccY: ");
+//        System.out.println(calcDev(still.getAttributeByValue(Data.Fields.AccelY.getText(), sensorId)));
+//        System.out.print("StdDev AccZ: ");
+//        System.out.println(calcDev(still.getAttributeByValue(Data.Fields.AccelZ.getText(), sensorId)));
+//        
 //        still.generateAttribute(Data.Fields.AccelY.getText(), "prev aY", new Prev(5));
 //        still.generateAttribute(Data.Fields.AccelY.getText(), "avg aY", new Average(11, 6));
 //        still.generateAttribute(Data.Fields.AccelY.getText(), "std aY", new StdDeviation(11, 6));
 //        still.generateAttribute(Data.Fields.AccelY.getText(), "med aY", new Median(11, 6));
-        still.generateAttribute(Data.Fields.AccelY.getText(), "prev aY still", new Prev(1));
-        still.generateAttribute(Data.Fields.AccelY.getText(), "eng aY still", new Energy(91, 46));
-        //double medEngStill = getMean(still.getAttributeByValue("eng aY", sensorId));
-        
-        laufen.generateAttribute(Data.Fields.AccelY.getText(), "prev aY laufen", new Prev(1));
-        laufen.generateAttribute(Data.Fields.AccelY.getText(), "eng aY laufen", new Energy(91, 46));
-        //double medEngLaufen = getMean(laufen.getAttributeByValue("eng aY", sensorId));
-        
-        Plot2DPanel plot = still.getPlot(sensorId, null, "eng aY still");
-        plot = laufen.getPlot(sensorId, plot, "eng aY laufen");
-        Data.showPlot(plot, "diff");
-        
+//        still.generateAttribute(Data.Fields.AccelY.getText(), "prev aY still", new Prev(1));
+//        still.generateAttribute(Data.Fields.AccelY.getText(), "eng aY still", new Energy(91, 46));
+//        //double medEngStill = getMean(still.getAttributeByValue("eng aY", sensorId));
+//        
+//        laufen.generateAttribute(Data.Fields.AccelY.getText(), "prev aY laufen", new Prev(1));
+//        laufen.generateAttribute(Data.Fields.AccelY.getText(), "eng aY laufen", new Energy(91, 46));
+//        //double medEngLaufen = getMean(laufen.getAttributeByValue("eng aY", sensorId));
+//        
+//        Plot2DPanel plot = still.getPlot(sensorId, null, "eng aY still");
+//        plot = laufen.getPlot(sensorId, plot, "eng aY laufen");
+//        Data.showPlot(plot, "diff");
+//        
 //        still.showPlot(sensorId, true, Data.Fields.AccelY.getText(), "prev aY still", "eng aY still");
 //        laufen.showPlot(sensorId, true, Data.Fields.AccelY.getText(), "prev aY laufen", "eng aY laufen");
 //        still.showPlot(sensorId, true, Data.Fields.AccelY.getText(), "prev aY", "avg aY", "eng aY", "med aY", "std aY");
+	}
+	
+	public static Data mergeData(Data... datas) {
+		Data result = datas[0];
+		if (datas[0].headers.size() != datas[1].headers.size()) {
+			System.out.println("Header size doesn't match");
+			return null;
+		}
+		for (int i = 0; i < datas[0].headers.size(); i++) {
+			if (datas[0].headers.get(i) != datas[1].headers.get(i)) {
+				System.out.println("Headers don't match");
+				return null;
+			}
+		}
+		for (int i : datas[1].lines.keySet()) {
+			for (int j = 0; j < datas[1].lines.get(i).size(); j++) {
+				result.lines.get(i).add(datas[1].lines.get(i).get(j));
+			}
+		}
+		
+		return result;
 	}
 	
 	public static double getMean(double[] data) {
@@ -82,33 +155,5 @@ public class main
 		dev = dev/data.length;
 		dev = Math.sqrt(dev);
 		return dev;
-	}
-	
-	public static Data getDataFromFile(String file) {
-		BufferedReader inputStream = null;
-		Data data;
-
-        try {
-            inputStream = new BufferedReader(new FileReader(file));
-
-            String l;
-            data = new Data(inputStream.readLine());
-            while ((l = inputStream.readLine()) != null) {
-            	data.addLine(l);
-            }
-        } catch (Exception e) {
-        	System.out.println("Something went wrong: " + e.getMessage());
-        	e.printStackTrace();
-        	return new Data("");
-        } finally {
-            if (inputStream != null) {
-            	try {
-            		inputStream.close();
-            	} catch (IOException e) {
-            		System.out.println("Couldn't close input stream");
-            	}
-            }
-        }
-        return data;
 	}
 }
