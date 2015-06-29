@@ -73,7 +73,7 @@ public class Node
 	
 	public Evaluation fire(ArrayList<DataLine> evalData, Evaluation current) {
 		if (children.size() < 1) {
-			for (DataLine d : data) {
+			for (DataLine d : evalData) {
 				if (d.data.get(this.headers.get(chosenFeature)) < chosenThreshold && isLeft) {
 					if (d.annotation == leafClass) {
 						current.TP++;

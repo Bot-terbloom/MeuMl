@@ -44,7 +44,6 @@ public class main {
 		//Node tree = new Node(still, sensorId, 3, Data.Fields.AccelX.getText());
 		tree.print();
 		Evaluation result = tree.fire(eval.lines.get(sensorId));
-		System.out.println(eval.lines.get(sensorId).size());
 		System.out.println(result.toString(eval.lines.get(sensorId).size()));
 		
 		gehen1.generateFeature();
