@@ -28,7 +28,7 @@ public class Node
 			}
 		}
 		
-		if (getEntropy() > 0.5) {
+		if (getEntropy() > 0.1) {
 			double minEntropy = Double.MAX_VALUE;
 			ArrayList<DataLine> minLeft = new ArrayList<DataLine>();
 			ArrayList<DataLine> minRight = new ArrayList<DataLine>();
@@ -76,15 +76,15 @@ public class Node
 			for (DataLine d : evalData) {
 				if (d.data.get(this.headers.get(chosenFeature)) < chosenThreshold && isLeft) {
 					if (d.annotation == leafClass) {
-						current.TP++;
-					} else {
-						current.TN++;
-					}
-				} else {
-					if (d.annotation == leafClass) {
 						current.FP++;
 					} else {
 						current.FN++;
+					}
+				} else {
+					if (d.annotation == leafClass) {
+						current.TP++;
+					} else {
+						current.TN++;
 					}
 				}
 			}

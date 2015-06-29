@@ -10,10 +10,10 @@ public class Evaluation
 	public int FN = 0;
 	
 	public String toString(int size) {
-		return "TP: " + TP + " (" + getRate(TP, size) + ")" + 
-				"; TN: " + TN + " (" + getRate(TN, size) + ")" +
-				"; FP: " + FP + " (" + getRate(FP, size) + ")" +
-				"; FN: " + FN + " (" + getRate(FN, size) + ")";
+		return "TP: " + TP + " (" + getRate(TP, size) + "%)" + 
+				"; TN: " + TN + " (" + getRate(TN, size) + "%)" +
+				"; FP: " + FP + " (" + getRate(FP, size) + "%)" +
+				"; FN: " + FN + " (" + getRate(FN, size) + "%)";
 	}
 	
 	private String getRate(int cnt, int size) {
