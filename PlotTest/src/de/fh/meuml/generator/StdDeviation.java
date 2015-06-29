@@ -9,6 +9,7 @@ import de.fh.meuml.core.DataLine;
 public class StdDeviation extends AttributeGenerator {
 	private int windowSize;
 	private int placement;
+	public final static String name = "devi";
 	
 	public StdDeviation(int windowSize, int placement) {
 		this.windowSize = windowSize;
@@ -68,5 +69,10 @@ public class StdDeviation extends AttributeGenerator {
 		dev = dev/window.size();
 		dev = Math.sqrt(dev);
 		return dev;
+	}
+	
+	@Override
+	public String getName() {
+		return name;
 	}
 }

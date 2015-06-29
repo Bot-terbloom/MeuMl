@@ -9,7 +9,7 @@ import de.fh.meuml.core.DataLine;
 public class Average extends AttributeGenerator {
 	private int windowSize;
 	private int placement;
-	
+	public final static String name = "avg";
 	public Average(int windowSize, int placement) {
 		this.windowSize = windowSize;
 		this.placement = placement;
@@ -48,5 +48,10 @@ public class Average extends AttributeGenerator {
 				values.get(i).data.add(avg);
 			}
 		}
+	}
+
+	@Override
+	public String getName() {
+		return name;
 	}
 }

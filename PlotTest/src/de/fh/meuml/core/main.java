@@ -1,19 +1,17 @@
 package de.fh.meuml.core;
 import java.io.*;
 import java.text.DecimalFormat;
+import java.util.Arrays;
 
 import org.math.plot.Plot2DPanel;
 
+import de.fh.meuml.core.Data.Fields;
 import de.fh.meuml.core.DataLine.Annotation;
 import de.fh.meuml.generator.*;
+import de.fh.as.neuron.Neuron;
 
-public class main
-{
-	public static void main(String[] args)
-	{
-		/** Wie viele Datensätze habe ich insgesamt? (Über alle Datensatz)
-		 * 
-		 * */
+public class main {
+	public static void main(String[] args) {
 		int sensorId = 1324189;
 		String basepath = "measurements\\2015.04.30\\08\\";
 		String nameLaufen = "laufen";
@@ -39,21 +37,27 @@ public class main
 		eval = mergeData(eval, gehen2);
 		eval.generateFeature();
 		
-		Node tree = new Node(training.lines.get(sensorId), training.headers, 3, true, null, "eng aX", "eng aY", "eng aZ");
+		Node tree = new Node(training.lines.get(sensorId), training.headers, 3, true, null,
+				training.getAttributeName(Fields.AccelX, Energy.name),
+				training.getAttributeName(Fields.AccelY, Energy.name),
+				training.getAttributeName(Fields.AccelZ, Energy.name));
 		//Node tree = new Node(still, sensorId, 3, Data.Fields.AccelX.getText());
 		tree.print();
 		Evaluation result = tree.fire(eval.lines.get(sensorId));
 		System.out.println(eval.lines.get(sensorId).size());
 		System.out.println(result.toString(eval.lines.get(sensorId).size()));
 		
+		gehen1.generateFeature();
+		laufen1.generateFeature();
+		
 		double[][] c1 = new double[2][];
 		double[][] c2 = new double[2][];
 		
-		c1[0] = gehen1.getAttributeByValue("eng aX", sensorId);
-		c1[1] = gehen1.getAttributeByValue("eng aY", sensorId);
+		c1[0] = gehen1.getAttribute(Fields.AccelX, Energy.name, sensorId);
+		c1[1] = gehen1.getAttribute(Fields.AccelY, Energy.name, sensorId);
 		
-		c2[0] = laufen1.getAttributeByValue("eng aX", sensorId);
-		c2[1] = laufen1.getAttributeByValue("eng aY", sensorId);
+		c2[0] = laufen1.getAttribute(Fields.AccelX, Energy.name, sensorId);
+		c2[1] = laufen1.getAttribute(Fields.AccelY, Energy.name, sensorId);
 		
 //		System.out.println(Arrays.toString(c1[0]));
 //		System.out.println(Arrays.toString(c2[0]));
@@ -70,6 +74,12 @@ public class main
 					+ df.format(ne.getTeta() / ne.getWeight(i)) + "\n";
 		}
 		System.out.println(output);
+		// still.showPlot(sensorId, true, Data.Fields.AccelY.getText(),
+		// "prev aY still", "eng aY still");
+		// laufen.showPlot(sensorId, true, Data.Fields.AccelY.getText(),
+		// "prev aY laufen", "eng aY laufen");
+		// still.showPlot(sensorId, true, Data.Fields.AccelY.getText(),
+		// "prev aY", "avg aY", "eng aY", "med aY", "std aY");
 		
 //		  System.out.print("Anzahl Datensätze: ");
 //        System.out.println(still.getAttributeByValue(Data.Fields.ID.getText(), sensorId).length);
@@ -146,14 +156,9 @@ public class main
 		for (int i = 0; i < data.length; i++) {
 			mean += data[i];
 		}
-
-		mean = mean/data.length;
-		
-		for (int i = 0; i < data.length; i++) {
-			dev = Math.pow(mean-data[i], 2);
-		}
 		dev = dev/data.length;
 		dev = Math.sqrt(dev);
 		return dev;
 	}
+
 }

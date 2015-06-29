@@ -10,6 +10,7 @@ import de.fh.meuml.core.DataLine;
 public class Median extends AttributeGenerator {
 	private int windowSize;
 	private int placement;
+	public final static String name = "med";
 	
 	public Median(int windowSize, int placement) {
 		this.windowSize = windowSize;
@@ -52,5 +53,10 @@ public class Median extends AttributeGenerator {
 				values.get(i).data.add(median);
 			}
 		}
+	}
+	
+	@Override
+	public String getName() {
+		return name;
 	}
 }

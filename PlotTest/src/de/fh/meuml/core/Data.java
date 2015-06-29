@@ -5,22 +5,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import javax.swing.JFrame;
-
-import java.awt.Color;
-
 import org.math.plot.Plot2DPanel;
-import org.math.plot.Plot3DPanel;
 import org.math.plot.PlotPanel;
 
 import de.fh.meuml.core.DataLine.Annotation;
-import de.fh.meuml.generator.AttributeGenerator;
-import de.fh.meuml.generator.Average;
-import de.fh.meuml.generator.Energy;
-import de.fh.meuml.generator.Median;
-import de.fh.meuml.generator.Prev;
-import de.fh.meuml.generator.StdDeviation;
+import de.fh.meuml.generator.*;
 
 public class Data {
 	public HashMap<Integer, ArrayList<DataLine>> lines = new HashMap<Integer, ArrayList<DataLine>>();
@@ -58,14 +48,12 @@ public class Data {
 		}
 	}
 
-	public void addLine(String line) {
+	public void addLine(String line, Annotation annotation) {
 		if (startTimestamp == null) {
 			String[] first = line.split(",");
-			startTimestamp = Double
-					.parseDouble(first[headers.get("Timestamp")]);
-//			System.out.println("Starttime: "+startTimestamp);
+			startTimestamp = Double.parseDouble(first[headers.get("Timestamp")]);
 		}
-		DataLine dataLine = new DataLine(line, headers, startTimestamp);
+		DataLine dataLine = new DataLine(line, headers, startTimestamp, annotation);
 		if (lines.get(dataLine.id) == null) {
 			lines.put(dataLine.id, new ArrayList<DataLine>());
 		}
@@ -190,6 +178,12 @@ public class Data {
 		generateAttribute(attribute, new Energy(ws, middle));
 
 		attribute = Fields.AccelX;
+		generateAttribute(attribute, new Average(ws, middle));
+		generateAttribute(attribute, new Median(ws, middle));
+		generateAttribute(attribute, new Prev(offset));
+		generateAttribute(attribute, new Energy(ws,middle));
+		
+		attribute = Fields.AccelZ;
 		generateAttribute(attribute, new Average(ws, middle));
 		generateAttribute(attribute, new Median(ws, middle));
 		generateAttribute(attribute, new Prev(offset));

@@ -9,6 +9,7 @@ import de.fh.meuml.core.DataLine;
 public class Energy extends AttributeGenerator {
 	private int windowSize;
 	private int placement;
+	public final static String name = "eng";
 	
 	public Energy(int windowSize, int placement) {
 		this.windowSize = windowSize;
@@ -45,5 +46,10 @@ public class Energy extends AttributeGenerator {
 					values.get(i).data.add(sum);
 			}
 		}
+	}
+	
+	@Override
+	public String getName() {
+		return name;
 	}
 }
