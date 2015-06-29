@@ -8,6 +8,7 @@ import de.fh.meuml.core.DataLine;
 
 public class Prev extends AttributeGenerator {
 	private int offset = 1;
+	public final static String name = "prev";
 	
 	public Prev(int offset) {
 		this.offset = offset;
@@ -32,5 +33,10 @@ public class Prev extends AttributeGenerator {
 				values.get(i).data.add(swap - prev);
 			}
 		}
+	}
+	
+	@Override
+	public String getName() {
+		return name;
 	}
 }
