@@ -37,7 +37,7 @@ public class main {
 		eval = mergeData(eval, gehen2);
 		eval.generateFeature();
 		
-		Node tree = new Node(training.lines.get(sensorId), training.headers, 3, true, null,
+		Node tree = new Node(training.lines.get(sensorId), training.headers, 3,
 				training.getAttributeName(Fields.AccelX, Energy.name),
 				training.getAttributeName(Fields.AccelY, Energy.name),
 				training.getAttributeName(Fields.AccelZ, Energy.name));

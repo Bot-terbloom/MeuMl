@@ -14,13 +14,11 @@ public class Node
 	Double chosenThreshold = 0.0;
 	String name;
 	ArrayList<Annotation> classes = new ArrayList<DataLine.Annotation>();
-	boolean isLeft;
 	public Annotation leafClass = Annotation.Keine;
 	
-	public Node(ArrayList<DataLine> data, HashMap<String, Integer> headers, int sepCount, boolean isLeft, Node parent, String... features) {
+	public Node(ArrayList<DataLine> data, HashMap<String, Integer> headers, int sepCount, String... features) {
 		this.data = data;
 		this.headers = headers;
-		this.isLeft = isLeft;
 		
 		for (DataLine d : this.data) {
 			if (!classes.contains(d.annotation)) {
@@ -56,25 +54,23 @@ public class Node
 				}
 			}
 			name = chosenFeature + " (" + chosenThreshold + ")";
-			children.add(new Node(minLeft, headers, sepCount, true, this, features));
-			children.add(new Node(minRight, headers, sepCount, false, this, features));
+			children.add(new Node(minLeft, headers, sepCount, features));
+			children.add(new Node(minRight, headers, sepCount, features));
 		} else {
 			leafClass = getDominantClass();
 			name = "Leaf: " + leafClass;
-			chosenFeature = parent.chosenFeature;
-			chosenThreshold = parent.chosenThreshold;
 		}
 	}
 	
 	public Evaluation fire(ArrayList<DataLine> evalData) {
 		Evaluation result = new Evaluation();
-		return fire(evalData, result);
+		return fire(evalData, result, true, null);
 	}
 	
-	public Evaluation fire(ArrayList<DataLine> evalData, Evaluation current) {
+	public Evaluation fire(ArrayList<DataLine> evalData, Evaluation current, boolean isLeft, Node parent) {
 		if (children.size() < 1) {
 			for (DataLine d : evalData) {
-				if (d.data.get(this.headers.get(chosenFeature)) < chosenThreshold && isLeft) {
+				if (d.data.get(this.headers.get(parent.chosenFeature)) < parent.chosenThreshold && isLeft) {
 					if (d.annotation == leafClass) {
 						current.FP++;
 					} else {
@@ -98,8 +94,8 @@ public class Node
 					right.add(d);
 				}
 			}
-			current = children.get(0).fire(left, current);
-			current = children.get(1).fire(right, current);
+			current = children.get(0).fire(left, current, true, this);
+			current = children.get(1).fire(right, current, false, this);
 		}
 		
 		return current;
