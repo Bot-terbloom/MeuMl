@@ -10,6 +10,7 @@ import de.fh.as.neuron.Neuron;
 import de.fh.as.neuron.PLA;
 import de.fh.as.neuron.Pocket;
 import de.fh.as.neuron.destinations.DstFeature;
+import de.fh.meuml.core.Data.Fields;
 import de.fh.meuml.generator.Energy;
 
 public class A2 {
@@ -97,6 +98,33 @@ public class A2 {
 					+ ", theta = " + ne.getTeta() + "\t=>\tx = "
 					+ df.format(ne.getTeta() / ne.getWeight(0)));
 		}
+	}
+	
+	public static void runP5_2(Data gehen, Data laufen, int sensorId) {
+		double[][] c1 = new double[2][];
+		double[][] c2 = new double[2][];
+		
+		c1[0] = gehen.getAttribute(Fields.AccelX, Energy.name, sensorId);
+		c1[1] = gehen.getAttribute(Fields.AccelY, Energy.name, sensorId);
+		
+		c2[0] = laufen.getAttribute(Fields.AccelX, Energy.name, sensorId);
+		c2[1] = laufen.getAttribute(Fields.AccelY, Energy.name, sensorId);
+		
+//		System.out.println(Arrays.toString(c1[0]));
+//		System.out.println(Arrays.toString(c2[0]));
+//		System.out.println(Arrays.toString(c1[1]));
+//		System.out.println(Arrays.toString(c2[1]));
+		Neuron ne = A2.trainPocket(c1, c2);
+		DecimalFormat df = new DecimalFormat("###,##0.000");
+		double[] weights = ne.getWeights();
+		String output = "";
+		System.out.println("Theta: " + df.format(ne.getTeta()));
+		for (int i = 0; i < weights.length; i++) {
+			System.out.println("w" + i + ": " + df.format(weights[i]));
+			output += "x" + i + " = "
+					+ df.format(ne.getTeta() / ne.getWeight(i)) + "\n";
+		}
+		System.out.println(output);
 	}
 	
 	public static Neuron trainPLA(double[] desire, double[] fail){

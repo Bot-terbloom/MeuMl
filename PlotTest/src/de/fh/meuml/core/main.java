@@ -13,18 +13,18 @@ import de.fh.as.neuron.Neuron;
 public class main {
 	public static void main(String[] args) {
 		int sensorId = 1324189;
-		String basepath = "measurements\\2015.04.30\\08\\";
+//		String basepath = "measurements\\2015.04.30\\08\\";
 		String nameLaufen = "laufen";
 		String nameGehen = "gehen";
 		String nameDrehen = "drehen";
-		//String basepath = "../measurements/2015.04.30/08/";
+		String basepath = "measurements/2015.04.30/08/";
 		//Data laufen = getDataFromFile(basepath + "laufen.csv");
 		//Data still = getDataFromFile(basepath + "sitzen.csv");
 		Data laufen1 = Data.getDataFromFile(basepath + "laufen.csv", nameLaufen, Annotation.Laufen);
 		Data drehen1 = Data.getDataFromFile(basepath + "drehen.csv", nameDrehen, Annotation.Drehen);
 		Data gehen1 = Data.getDataFromFile(basepath + "gehen.csv", nameGehen, Annotation.Gehen);
 		
-		basepath = "measurements\\2015.04.30\\13\\";
+//		basepath = "measurements\\2015.04.30\\13\\";
 		Data laufen2 = Data.getDataFromFile(basepath + "laufen.csv", nameLaufen, Annotation.Laufen);
 		Data drehen2 = Data.getDataFromFile(basepath + "drehen.csv", nameDrehen, Annotation.Drehen);
 		Data gehen2 = Data.getDataFromFile(basepath + "gehen.csv", nameGehen, Annotation.Gehen);
@@ -49,30 +49,7 @@ public class main {
 		gehen1.generateFeature();
 		laufen1.generateFeature();
 		
-		double[][] c1 = new double[2][];
-		double[][] c2 = new double[2][];
 		
-		c1[0] = gehen1.getAttribute(Fields.AccelX, Energy.name, sensorId);
-		c1[1] = gehen1.getAttribute(Fields.AccelY, Energy.name, sensorId);
-		
-		c2[0] = laufen1.getAttribute(Fields.AccelX, Energy.name, sensorId);
-		c2[1] = laufen1.getAttribute(Fields.AccelY, Energy.name, sensorId);
-		
-//		System.out.println(Arrays.toString(c1[0]));
-//		System.out.println(Arrays.toString(c2[0]));
-//		System.out.println(Arrays.toString(c1[1]));
-//		System.out.println(Arrays.toString(c2[1]));
-		Neuron ne = A2.trainPocket(c1, c2);
-		DecimalFormat df = new DecimalFormat("###,##0.000");
-		double[] weights = ne.getWeights();
-		String output = "";
-		System.out.println("Theta: " + df.format(ne.getTeta()));
-		for (int i = 0; i < weights.length; i++) {
-			System.out.println("w" + i + ": " + df.format(weights[i]));
-			output += "x" + i + " = "
-					+ df.format(ne.getTeta() / ne.getWeight(i)) + "\n";
-		}
-		System.out.println(output);
 		// still.showPlot(sensorId, true, Data.Fields.AccelY.getText(),
 		// "prev aY still", "eng aY still");
 		// laufen.showPlot(sensorId, true, Data.Fields.AccelY.getText(),
