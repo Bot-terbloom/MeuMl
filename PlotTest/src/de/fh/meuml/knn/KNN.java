@@ -99,7 +99,6 @@ public class KNN {
 			@SuppressWarnings("unchecked")
 			Map.Entry<Color, Integer> pair = (Entry<Color, Integer>) it.next();
 			count = ((Integer) pair.getValue()).intValue();
-			color = Color.MAGENTA;
 			if (max < count) {
 				max = count;
 				color = pair.getKey();
