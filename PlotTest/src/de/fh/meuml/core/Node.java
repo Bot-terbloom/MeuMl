@@ -26,7 +26,7 @@ public class Node
 			}
 		}
 		
-		if (getEntropy() > 0.1) {
+		if (getEntropy() > 0.2) {
 			double minEntropy = Double.MAX_VALUE;
 			ArrayList<DataLine> minLeft = new ArrayList<DataLine>();
 			ArrayList<DataLine> minRight = new ArrayList<DataLine>();
@@ -67,22 +67,10 @@ public class Node
 		return fire(evalData, result, true, null);
 	}
 	
-	public Evaluation fire(ArrayList<DataLine> evalData, Evaluation current, boolean isLeft, Node parent) {
+	private Evaluation fire(ArrayList<DataLine> evalData, Evaluation current, boolean isLeft, Node parent) {
 		if (children.size() < 1) {
 			for (DataLine d : evalData) {
-				if (d.data.get(this.headers.get(parent.chosenFeature)) < parent.chosenThreshold && isLeft) {
-					if (d.annotation == leafClass) {
-						current.FP++;
-					} else {
-						current.FN++;
-					}
-				} else {
-					if (d.annotation == leafClass) {
-						current.TP++;
-					} else {
-						current.TN++;
-					}
-				}
+				current.count(leafClass, d.annotation);
 			}
 		} else {
 			ArrayList<DataLine> left = new ArrayList<DataLine>();

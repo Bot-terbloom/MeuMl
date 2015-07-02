@@ -1,7 +1,9 @@
 package de.fh.meuml.core;
 import java.io.*;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import org.math.plot.Plot2DPanel;
 
@@ -13,42 +15,122 @@ import de.fh.as.neuron.Neuron;
 public class main {
 	public static void main(String[] args) {
 		int sensorId = 1324189;
-//		String basepath = "measurements\\2015.04.30\\08\\";
+		String basepath = "measurements\\2015.04.30\\08\\";
 		String nameLaufen = "laufen";
 		String nameGehen = "gehen";
 		String nameDrehen = "drehen";
-		String basepath = "measurements/2015.04.30/08/";
-		//Data laufen = getDataFromFile(basepath + "laufen.csv");
-		//Data still = getDataFromFile(basepath + "sitzen.csv");
+//		String basepath = "../measurements/2015.04.30/08/";
+		Data training = Data.getDataFromFile(basepath + "laufen.csv", nameLaufen, Annotation.Laufen);
 		Data laufen1 = Data.getDataFromFile(basepath + "laufen.csv", nameLaufen, Annotation.Laufen);
 		Data drehen1 = Data.getDataFromFile(basepath + "drehen.csv", nameDrehen, Annotation.Drehen);
 		Data gehen1 = Data.getDataFromFile(basepath + "gehen.csv", nameGehen, Annotation.Gehen);
 		
-//		basepath = "measurements\\2015.04.30\\13\\";
+		basepath = "measurements\\2015.04.30\\20\\";
+		Data eval = Data.getDataFromFile(basepath + "laufen.csv", nameLaufen, Annotation.Laufen);
 		Data laufen2 = Data.getDataFromFile(basepath + "laufen.csv", nameLaufen, Annotation.Laufen);
 		Data drehen2 = Data.getDataFromFile(basepath + "drehen.csv", nameDrehen, Annotation.Drehen);
 		Data gehen2 = Data.getDataFromFile(basepath + "gehen.csv", nameGehen, Annotation.Gehen);
 		
-		Data training = mergeData(laufen1, drehen1);
-		training = mergeData(training, gehen1);
+		System.out.println("Trainingsdaten laufen: " + laufen1.lines.get(sensorId).size());
+		System.out.println("Trainingsdaten gehen: " + gehen1.lines.get(sensorId).size());
+		System.out.println("Trainingsdaten drehen: " + drehen1.lines.get(sensorId).size());
+		System.out.println("Evaluierungsdaten laufen: " + laufen2.lines.get(sensorId).size());
+		System.out.println("Evaluierungsdaten gehen: " + gehen2.lines.get(sensorId).size());
+		System.out.println("Evaluierungsdaten drehen: " + drehen2.lines.get(sensorId).size());
+		
+		mergeData(training, gehen1);
+		//training = mergeData(training, drehen1);
 		training.generateFeature();
 		
-		Data eval = mergeData(laufen2, drehen2);
-		eval = mergeData(eval, gehen2);
+		mergeData(eval, gehen2);
+		//eval = mergeData(eval, drehen2);
 		eval.generateFeature();
 		
 		Node tree = new Node(training.lines.get(sensorId), training.headers, 3,
 				training.getAttributeName(Fields.AccelX, Energy.name),
 				training.getAttributeName(Fields.AccelY, Energy.name),
 				training.getAttributeName(Fields.AccelZ, Energy.name));
-		//Node tree = new Node(still, sensorId, 3, Data.Fields.AccelX.getText());
 		tree.print();
+		
 		Evaluation result = tree.fire(eval.lines.get(sensorId));
-		System.out.println(result.toString(eval.lines.get(sensorId).size()));
+		System.out.println("Qualität Entscheidungsbaum: " + result.toString());
 		
 		gehen1.generateFeature();
 		laufen1.generateFeature();
 		
+		double[][] c1 = new double[2][];
+		double[][] c2 = new double[2][];
+		
+		c1[0] = gehen1.getAttribute(Fields.AccelX, Energy.name, sensorId);
+		c1[1] = gehen1.getAttribute(Fields.AccelY, Energy.name, sensorId);
+		
+		c2[0] = laufen1.getAttribute(Fields.AccelX, Energy.name, sensorId);
+		c2[1] = laufen1.getAttribute(Fields.AccelY, Energy.name, sensorId);
+		
+		gehen2.generateFeature();
+		laufen2.generateFeature();
+		
+		double[][] e1 = new double[2][];
+		double[][] e2 = new double[2][];
+		
+		e1[0] = gehen2.getAttribute(Fields.AccelX, Energy.name, sensorId);
+		e1[1] = gehen2.getAttribute(Fields.AccelY, Energy.name, sensorId);
+		
+		e2[0] = laufen2.getAttribute(Fields.AccelX, Energy.name, sensorId);
+		e2[1] = laufen2.getAttribute(Fields.AccelY, Energy.name, sensorId);
+		
+		Neuron ne = A2.trainPLA(c1, c2);
+		double[] weights = ne.getWeights();
+		DecimalFormat df = new DecimalFormat("###,##0.000");
+		String output = "";
+		System.out.println("Theta: " + df.format(ne.getTeta()));
+		for (int i = 0; i < weights.length; i++) {
+			System.out.println("w" + i + ": " + df.format(weights[i]));
+			output += "x" + i + " = "
+					+ df.format(ne.getTeta() / ne.getWeight(i)) + "\n";
+		}
+		System.out.println(output);
+		
+		result = new Evaluation();
+		for (int i = 0; i < e1[0].length; i++) {
+			double[] in = {e1[0][i], e1[1][i]};
+			ne.setIn(in);
+			double out = ne.getOut();
+			result.count((out == 1.0 ? Annotation.Gehen : Annotation.Laufen), Annotation.Gehen);
+		}
+		for (int i = 0; i < e2[0].length; i++) {
+			double[] in = {e2[0][i], e2[1][i]};
+			ne.setIn(in);
+			double out = ne.getOut();
+			result.count((out == 1.0 ? Annotation.Gehen : Annotation.Laufen), Annotation.Laufen);
+		}
+		System.out.println("Qualität PLA: " + result.toString());
+		
+		ne = A2.trainPocket(c1, c2);
+		weights = ne.getWeights();
+		output = "";
+		System.out.println("Theta: " + df.format(ne.getTeta()));
+		for (int i = 0; i < weights.length; i++) {
+			System.out.println("w" + i + ": " + df.format(weights[i]));
+			output += "x" + i + " = "
+					+ df.format(ne.getTeta() / ne.getWeight(i)) + "\n";
+		}
+		System.out.println(output);
+		
+		result = new Evaluation();
+		for (int i = 0; i < e1[0].length; i++) {
+			double[] in = {e1[0][i], e1[1][i]};
+			ne.setIn(in);
+			double out = ne.getOut();
+			result.count((out == 1.0 ? Annotation.Gehen : Annotation.Laufen), Annotation.Gehen);
+		}
+		for (int i = 0; i < e2[0].length; i++) {
+			double[] in = {e2[0][i], e2[1][i]};
+			ne.setIn(in);
+			double out = ne.getOut();
+			result.count((out == 1.0 ? Annotation.Gehen : Annotation.Laufen), Annotation.Laufen);
+		}
+		System.out.println("Qualität Pocket: " + result.toString());
 		
 		// still.showPlot(sensorId, true, Data.Fields.AccelY.getText(),
 		// "prev aY still", "eng aY still");
