@@ -10,6 +10,7 @@ import org.math.plot.Plot2DPanel;
 import de.fh.meuml.core.Data.Fields;
 import de.fh.meuml.core.DataLine.Annotation;
 import de.fh.meuml.generator.*;
+import de.fh.meuml.knn.gui.DrawGraph;
 import de.fh.as.neuron.Neuron;
 
 public class main {
@@ -38,6 +39,9 @@ public class main {
 		System.out.println("Evaluierungsdaten gehen: " + gehen2.lines.get(sensorId).size());
 		System.out.println("Evaluierungsdaten drehen: " + drehen2.lines.get(sensorId).size());
 		
+		double theta = 0.1;
+		int k = 4;
+		
 		mergeData(training, gehen1);
 		//training = mergeData(training, drehen1);
 		training.generateFeature();
@@ -46,7 +50,7 @@ public class main {
 		//eval = mergeData(eval, drehen2);
 		eval.generateFeature();
 		
-		Node tree = new Node(training.lines.get(sensorId), training.headers, 3,
+		Node tree = new Node(training.lines.get(sensorId), training.headers, 3, theta,
 				training.getAttributeName(Fields.AccelX, Energy.name),
 				training.getAttributeName(Fields.AccelY, Energy.name),
 				training.getAttributeName(Fields.AccelZ, Energy.name));
@@ -57,9 +61,14 @@ public class main {
 		
 		gehen1.generateFeature();
 		laufen1.generateFeature();
+		drehen1.generateFeature();
+		gehen2.generateFeature();
+		laufen2.generateFeature();
+		drehen2.generateFeature();
 		
 		double[][] c1 = new double[2][];
 		double[][] c2 = new double[2][];
+		double[][] c3 = new double[2][];
 		
 		c1[0] = gehen1.getAttribute(Fields.AccelX, Energy.name, sensorId);
 		c1[1] = gehen1.getAttribute(Fields.AccelY, Energy.name, sensorId);
@@ -67,11 +76,12 @@ public class main {
 		c2[0] = laufen1.getAttribute(Fields.AccelX, Energy.name, sensorId);
 		c2[1] = laufen1.getAttribute(Fields.AccelY, Energy.name, sensorId);
 		
-		gehen2.generateFeature();
-		laufen2.generateFeature();
+		c3[0] = drehen1.getAttribute(Fields.AccelX, Energy.name, sensorId);
+		c3[1] = drehen1.getAttribute(Fields.AccelY, Energy.name, sensorId);
 		
 		double[][] e1 = new double[2][];
 		double[][] e2 = new double[2][];
+		double[][] e3 = new double[2][];
 		
 		e1[0] = gehen2.getAttribute(Fields.AccelX, Energy.name, sensorId);
 		e1[1] = gehen2.getAttribute(Fields.AccelY, Energy.name, sensorId);
@@ -79,7 +89,10 @@ public class main {
 		e2[0] = laufen2.getAttribute(Fields.AccelX, Energy.name, sensorId);
 		e2[1] = laufen2.getAttribute(Fields.AccelY, Energy.name, sensorId);
 		
-		Neuron ne = A2.trainPLA(c1, c2);
+		e3[0] = drehen2.getAttribute(Fields.AccelX, Energy.name, sensorId);
+		e3[1] = drehen2.getAttribute(Fields.AccelY, Energy.name, sensorId);
+		
+		Neuron ne = A2.trainPLA(c1, c2, theta);
 		double[] weights = ne.getWeights();
 		DecimalFormat df = new DecimalFormat("###,##0.000");
 		String output = "";
@@ -106,7 +119,7 @@ public class main {
 		}
 		System.out.println("Qualität PLA: " + result.toString());
 		
-		ne = A2.trainPocket(c1, c2);
+		ne = A2.trainPocket(c1, c2, theta);
 		weights = ne.getWeights();
 		output = "";
 		System.out.println("Theta: " + df.format(ne.getTeta()));
@@ -131,6 +144,8 @@ public class main {
 			result.count((out == 1.0 ? Annotation.Gehen : Annotation.Laufen), Annotation.Laufen);
 		}
 		System.out.println("Qualität Pocket: " + result.toString());
+		
+		DrawGraph.run(k);
 		
 		// still.showPlot(sensorId, true, Data.Fields.AccelY.getText(),
 		// "prev aY still", "eng aY still");

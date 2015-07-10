@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 
+import de.fh.meuml.core.DataLine.Annotation;
+
 public class Featureset extends Vector{
 
 	private ArrayList<Vector> features = new ArrayList<>();
@@ -19,6 +21,12 @@ public class Featureset extends Vector{
 		Vector result = new Vector(getCentroid());
 		result.setColor(Color.MAGENTA);
 		return result;
+	}
+	
+	public void setAnnotation(Annotation a) {
+		for (Vector v : features) {
+			v.real = a;
+		}
 	}
 
 	public double[] getCentroid() {

@@ -2,11 +2,13 @@ package de.fh.meuml.knn;
 
 import java.util.Random;
 
+import de.fh.meuml.core.DataLine.Annotation;
 import de.fh.meuml.knn.gui.AbstractDrawable;
 
 public class Vector extends AbstractDrawable {
 
 	private double[] vec;
+	public Annotation real;
 	
 	public Vector() {
 		vec = new double[2];

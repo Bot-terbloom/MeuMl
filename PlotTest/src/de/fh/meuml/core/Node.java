@@ -16,7 +16,7 @@ public class Node
 	ArrayList<Annotation> classes = new ArrayList<DataLine.Annotation>();
 	public Annotation leafClass = Annotation.Keine;
 	
-	public Node(ArrayList<DataLine> data, HashMap<String, Integer> headers, int sepCount, String... features) {
+	public Node(ArrayList<DataLine> data, HashMap<String, Integer> headers, int sepCount, double theta, String... features) {
 		this.data = data;
 		this.headers = headers;
 		
@@ -26,7 +26,7 @@ public class Node
 			}
 		}
 		
-		if (getEntropy() > 0.2) {
+		if (getEntropy() > theta) {
 			double minEntropy = Double.MAX_VALUE;
 			ArrayList<DataLine> minLeft = new ArrayList<DataLine>();
 			ArrayList<DataLine> minRight = new ArrayList<DataLine>();
@@ -54,8 +54,8 @@ public class Node
 				}
 			}
 			name = chosenFeature + " (" + chosenThreshold + ")";
-			children.add(new Node(minLeft, headers, sepCount, features));
-			children.add(new Node(minRight, headers, sepCount, features));
+			children.add(new Node(minLeft, headers, sepCount, theta, features));
+			children.add(new Node(minRight, headers, sepCount, theta, features));
 		} else {
 			leafClass = getDominantClass();
 			name = "Leaf: " + leafClass;
@@ -110,7 +110,7 @@ public class Node
 		double sum = 0.0;
 		for (Annotation a : classes) {
 			double likelihood = getLikelihood(data, a);
-			sum += (likelihood * (likelihood == 0.0 ? 0.0 : Math.log(likelihood)));
+			sum += (likelihood * (likelihood == 0.0 ? 0.0 : (Math.log(likelihood) / Math.log(2))));
 		}
 		return -sum;
 	}

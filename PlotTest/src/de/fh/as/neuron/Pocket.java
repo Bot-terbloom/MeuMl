@@ -1,4 +1,4 @@
-package de.fh.as.neuron;
+ package de.fh.as.neuron;
 
 import de.fh.as.neuron.destinations.DstFeature;
 import de.fh.as.neuron.destinations.IDestination;
@@ -8,11 +8,10 @@ public class Pocket extends PLA {
 	private double[][] desire = null; // laufen -> 1
 	private double[][] fail = null; // still -> -1
 
-	public Pocket(DstFeature dst, int n) {
-		super(dst, n);
+	public Pocket(DstFeature dst, int n, double theta) {
+		super(dst, n, theta);
 		this.desire = dst.getDesire();
 		this.fail = dst.getFail();
-
 	}
 
 	@Override

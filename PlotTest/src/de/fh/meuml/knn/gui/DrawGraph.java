@@ -55,13 +55,13 @@ public class DrawGraph extends JPanel {
 	}
 
 	public static void main(String[] args) {
-		JFrame f = new JFrame();
-		while (true) {
-			run(f);
-		}
+		run(5);
 	}
 
-	public static void run(JFrame f) {
+	public static void run(int k) {
+		int timeout = 0;
+		
+		JFrame f = new JFrame();
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.add(new DrawGraph());
 		f.setSize(width, heigth);
@@ -73,21 +73,23 @@ public class DrawGraph extends JPanel {
 		String nameLaufen = "laufen";
 		String nameGehen = "gehen";
 		String nameDrehen = "drehen";
-		String basepath = "measurements/2015.04.30/08/";
+		//String basepath = "measurements/2015.04.30/08/";
+		String basepath = "measurements\\2015.04.30\\08\\";
 		// 2-1300;3000
-		Data laufen1 = Data.getDataFromFile(basepath + "laufenx.csv",
+		Data laufen1 = Data.getDataFromFile(basepath + "laufen.csv",
 				nameLaufen + 1, Annotation.Laufen);
 		Data drehen1 = Data.getDataFromFile(basepath + "drehen.csv",
 				nameDrehen + 1, Annotation.Drehen);
-		Data gehen1 = Data.getDataFromFile(basepath + "gehenx.csv",
+		Data gehen1 = Data.getDataFromFile(basepath + "gehen.csv",
 				nameGehen + 1, Annotation.Gehen);
 
-		basepath = "measurements/2015.04.30/13/";
-		Data laufen2 = Data.getDataFromFile(basepath + "laufenx.csv",
+		//basepath = "measurements/2015.04.30/20/";
+		basepath = "measurements\\2015.04.30\\20\\";
+		Data laufen2 = Data.getDataFromFile(basepath + "laufen.csv",
 				nameLaufen + 2, Annotation.Laufen);
 		Data drehen2 = Data.getDataFromFile(basepath + "drehen.csv",
 				nameDrehen + 2, Annotation.Drehen);
-		Data gehen2 = Data.getDataFromFile(basepath + "gehenx.csv",
+		Data gehen2 = Data.getDataFromFile(basepath + "gehen.csv",
 				nameGehen + 2, Annotation.Gehen);
 
 		laufen1.generateFeature();
@@ -127,40 +129,43 @@ public class DrawGraph extends JPanel {
 		fs = fs1;
 		text = "Laufen";
 		f.repaint();
-		wait(3000);
+		wait(timeout);
 
 		fs = fs2;
 		text = "Gehen";
 		f.repaint();
-		wait(3000);
+		wait(timeout);
 
 		fs1.addFeature(fs2);
 
 		Featureset uc1 = new Featureset(dataL21, dataL22);
+		uc1.setAnnotation(Annotation.Laufen);
 		Featureset uc2 = new Featureset(dataG21, dataG22);
+		uc2.setAnnotation(Annotation.Gehen);
 		uc1.addFeature(uc2);
 		uc1.setColor(Color.MAGENTA);
 
-		KNN knn = new KNN(5, new NormEuklid(), fs1);
+		KNN knn = new KNN(k, new NormEuklid(), fs1);
 
 		fs = knn.getTrainingsets().get(0);
 		text = "Trainingsdaten";
 		f.repaint();
-		wait(3000);
+		wait(timeout);
 
 		fs = uc1;
 		text = "Eingabe";
 		f.repaint();
-		wait(3000);
+		wait(timeout);
 
 		knn.classify(uc1);
 
 		fs = uc1;
 		text = "Klassifizierung";
 		f.repaint();
-		wait(3000);
+		wait(timeout);
 
-		System.out.println("done");
+		System.out.println();
+		System.out.println("Qualität kNN (" + k + "): " + knn.eval.toString());
 
 		while (true) {
 			wait(1000);

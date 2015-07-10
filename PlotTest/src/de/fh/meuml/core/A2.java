@@ -70,7 +70,7 @@ public class A2 {
 		return dev;
 	}
 	
-	public static void runP5_1(Data laufen, Data sitzen, int sensorId) {
+	public static void runP5_1(Data laufen, Data sitzen, int sensorId, double theta) {
 		DecimalFormat df = new DecimalFormat("###,##0.000");
 		Neuron ne;
 		double[] class1;
@@ -85,7 +85,7 @@ public class A2 {
 
 		System.out.println("PLA");
 		for (int i = 0; i < 10; i++) {
-			ne = trainPLA(class1, class2);
+			ne = trainPLA(class1, class2, theta);
 			System.out.println("w1 = " + df.format(ne.getWeight(0))
 					+ ", theta = " + ne.getTeta() + "\t=>\tx = "
 					+ df.format(ne.getTeta() / ne.getWeight(0)));
@@ -93,14 +93,14 @@ public class A2 {
 
 		System.out.println("Pocket");
 		for (int i = 0; i < 10; i++) {
-			ne = trainPocket(class1, class2);
+			ne = trainPocket(class1, class2, theta);
 			System.out.println("w1 = " + df.format(ne.getWeight(0))
 					+ ", theta = " + ne.getTeta() + "\t=>\tx = "
 					+ df.format(ne.getTeta() / ne.getWeight(0)));
 		}
 	}
 	
-	public static void runP5_2(Data gehen, Data laufen, int sensorId) {
+	public static void runP5_2(Data gehen, Data laufen, int sensorId, double theta) {
 		double[][] c1 = new double[2][];
 		double[][] c2 = new double[2][];
 		
@@ -114,7 +114,7 @@ public class A2 {
 //		System.out.println(Arrays.toString(c2[0]));
 //		System.out.println(Arrays.toString(c1[1]));
 //		System.out.println(Arrays.toString(c2[1]));
-		Neuron ne = A2.trainPocket(c1, c2);
+		Neuron ne = A2.trainPocket(c1, c2, theta);
 		DecimalFormat df = new DecimalFormat("###,##0.000");
 		double[] weights = ne.getWeights();
 		String output = "";
@@ -127,17 +127,17 @@ public class A2 {
 		System.out.println(output);
 	}
 	
-	public static Neuron trainPLA(double[] desire, double[] fail){
+	public static Neuron trainPLA(double[] desire, double[] fail, double theta){
 		double[][]d = new double[1][desire.length];
 		double[][]f = new double[1][desire.length];
 		d[0]=desire;
 		f[0]=fail;
-		return trainPLA(d, f);
+		return trainPLA(d, f, theta);
 	}
 	
-	public static Neuron trainPLA(double[][] desire, double[][] fail){
+	public static Neuron trainPLA(double[][] desire, double[][] fail, double theta){
 		DstFeature dst = new DstFeature(desire, fail);
-		PLA pla = new PLA(dst, desire.length);	
+		PLA pla = new PLA(dst, desire.length, theta);	
 		
 		for (int i = 0; i < runs; i++) {
 			pla.setNewIn();
@@ -146,17 +146,17 @@ public class A2 {
 		return pla;
 	}
 
-	public static Neuron trainPocket(double[] desire, double[] fail){
+	public static Neuron trainPocket(double[] desire, double[] fail, double theta){
 		double[][]d = new double[1][desire.length];
 		double[][]f = new double[1][desire.length];
 		d[0]=desire;
 		f[0]=fail;
-		return trainPocket(d, f);
+		return trainPocket(d, f, theta);
 	}
 	
-	public static Neuron trainPocket(double[][] desire, double[][] fail){
+	public static Neuron trainPocket(double[][] desire, double[][] fail, double theta){
 		DstFeature dst = new DstFeature(desire, fail);
-		Pocket pocket = new Pocket(dst, desire.length);	
+		Pocket pocket = new Pocket(dst, desire.length, theta);	
 		
 		for (int i = 0; i < runs; i++) {
 			pocket.setNewIn();

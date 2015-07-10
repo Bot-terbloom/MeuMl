@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import de.fh.meuml.core.DataLine.Annotation;
+import de.fh.meuml.core.Evaluation;
 import de.fh.meuml.knn.norm.INorm;
 
 public class KNN {
@@ -14,6 +16,7 @@ public class KNN {
 	private ArrayList<Featureset> trainingsets = new ArrayList<>();
 	INorm norm;
 	int k = 1;
+	public Evaluation eval = new Evaluation();
 
 	public KNN(int k, INorm norm, Featureset... trainingset) {
 		this.k = k;
@@ -106,6 +109,14 @@ public class KNN {
 			it.remove(); // avoids a ConcurrentModificationException
 		}
 		vec.setColor(color);
+		Annotation guessed = Annotation.Keine;
+		if (color == Color.GREEN) {
+			guessed = Annotation.Laufen;
+		} else if(color == Color.BLUE) {
+			guessed = Annotation.Gehen;
+		}
+		eval.count(guessed, vec.real);
+		//Laufen = Grün, Gehen = Blau, Testset = Magenta
 	}
 	
 	public void classify(Featureset fs){

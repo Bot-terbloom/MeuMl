@@ -11,10 +11,7 @@ public final class Transferfunctions {
 	private static class TSign implements ITransferfunction{
 		@Override
 		public double function(double x, double lambda) {
-			double result = -1;
-			if (x >= 0.0)
-				result = 1.0;
-			return result;
+			return Math.signum(x);
 		}
 	}
 

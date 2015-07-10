@@ -67,7 +67,7 @@ public class Neuron {
 		setInCount(n);
 		this.setTeta(teta);
 		this.setLearningRate(teta/5);
-		this.setTransfer(Transferfunctions.getTStep());
+		this.setTransfer(Transferfunctions.getTSign());
 		this.setAlgorithm(Learningalgorithms.getLHebb());
 		this.setRndWeights();
 	}
